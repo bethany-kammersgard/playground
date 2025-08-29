@@ -29,15 +29,6 @@ PLATFORM_SPEED = 7      # Horizontal speed of the platform
 MAX_PLATFORM_SPEED = 12
 
 # -------------------------------------------------------------
-# INITIALISE PYGAME
-# -------------------------------------------------------------
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("BounceGame")
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 36)
-
-# -------------------------------------------------------------
 # PLATFORM CLASS
 # -------------------------------------------------------------
 class Platform:
@@ -129,6 +120,15 @@ class Ball:
 
     def draw(self, screen):
         pygame.draw.circle(screen, BALL_COLOR, (int(self.x), int(self.y)), BALL_RADIUS)
+
+# -------------------------------------------------------------
+# INITIALISE PYGAME
+# -------------------------------------------------------------
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("BounceGame")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
 
 # -------------------------------------------------------------
 # MAIN GAME LOOP
