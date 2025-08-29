@@ -4,6 +4,7 @@
 #   Bouncing Ball + Platform
 #   Score = number of seconds the ball stays in the air
 #   Ball speeds up gradually
+#   Play by just running "python .\BounceGame" on terminal
 # -------------------------------------------------------------
 
 import pygame
