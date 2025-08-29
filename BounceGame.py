@@ -93,17 +93,12 @@ class Ball:
         if self.vy > 0:  # only when falling
             hitbox = pygame.Rect(self.x - BALL_RADIUS, self.y - BALL_RADIUS, 2 * BALL_RADIUS, 2 * BALL_RADIUS)
             if self.platform.rect.colliderect(hitbox):
-                # Bounce: invert velocity and add a small random bounce boost
+                # Bounce: invert velocity and add a small bounce boost
                 self.vy = -self.vy * 1.1
                 self.speed_multiplier += SPEED_UP_RATE  # speed up a bit
                 # Horizontal tweak based on platform speed and position on platform
                 english_factor = -2.5
                 self.vx += (self.platform.speed * english_factor) + (self.x - self.platform.rect.centerx)
-                # If on "diagonal", add extra speed horizontally (only one of these should be non zero)
-                #diag_left = self.x 
-                #diag_right =
-                #diag_factor = self.x - self.platform.rect.topleft
-
 
         # Floor collision (lose condition)
         if self.y - BALL_RADIUS > HEIGHT:
