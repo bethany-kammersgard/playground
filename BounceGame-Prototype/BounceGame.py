@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -------------------------------------------------------------
 #   Silly little test game
-#   Bouncing Ball + Platform
+#   Bouncing Ball + 4 Platforms
 #   Score = number of seconds the ball stays in the air
 #   Ball speeds up gradually
 #   Play by just running "python .\BounceGame" on terminal
@@ -13,11 +13,11 @@ import sys
 # -------------------------------------------------------------
 # CONSTANTS
 # -------------------------------------------------------------
-WIDTH, HEIGHT = 800, 600           # Window size
+WIN_WIDTH, WIN_HEIGHT = 800, 600           # Window size
 FPS = 60                           # Frames per second
 
-PLATFORM_HEIGHT = 20
-PLATFORM_COLOR = (200, 200, 50)
+PADDLE_HEIGHT = 20
+PADDLE_COLOR = (200, 200, 50)
 BALL_COLOR = (250, 50, 50)
 BG_COLOR = (30, 30, 30)
 
@@ -32,53 +32,64 @@ MAX_PLATFORM_SPEED = 12
 # -------------------------------------------------------------
 # PLATFORM CLASS
 # -------------------------------------------------------------
-class Platform:
+class QuadPaddle:
     def __init__(self):
-        # Start in the middle, 80% of screen height
-        self.width = WIDTH // 4
-        self.rect = pygame.Rect(
-            (WIDTH - self.width) // 2,
-            int(HEIGHT * 0.8),
+        # 4 paddles.
+        self.width = WIN_WIDTH // 4
+        # X axis paddles (top and bottom)
+        self.top = pygame.Rect(
+            (WIN_WIDTH - self.width) // 2,
+            int(WIN_HEIGHT * 0.9),
             self.width,
-            PLATFORM_HEIGHT,
+            PADDLE_HEIGHT,
         )
-        self.speed = 0
+        self.bot = pygame.Rect(
+            (WIN_WIDTH - self.width) // 2,
+            int(WIN_HEIGHT * 0.1),
+            self.width,
+            PADDLE_HEIGHT,
+        )
+        self.pos_x = 0
+        self.vel_x = 0
 
     def update(self, keys):
         """Move left/right based on pressed keys."""
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.speed = -PLATFORM_SPEED
+            self.vel_x = -PLATFORM_SPEED
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.speed = PLATFORM_SPEED
+            self.vel_x = PLATFORM_SPEED
         else:
-            self.speed = 0
+            self.vel_x = 0
 
         # Update position and clamp to screen edges
-        self.rect.x += self.speed
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
+        self.pos_x += self.vel_x
+        if self.top.left < 0:
+            self.pos_x = 0
+        if self.top.right > WIN_WIDTH:
+            self.pos_x = WIN_WIDTH - self.width
+        self.top.x = self.pos_x
+        self.bot.x = self.pos_x
 
     def draw(self, screen):
-        pygame.draw.rect(screen, PLATFORM_COLOR, self.rect)
+        pygame.draw.rect(screen, PADDLE_COLOR, self.top)
+        pygame.draw.rect(screen, PADDLE_COLOR, self.bot)
 
 # -------------------------------------------------------------
 # BALL CLASS
 # -------------------------------------------------------------
 class Ball:
-    def __init__(self, platform):
-        self.platform = platform
+    def __init__(self, paddles):
+        self.paddles = paddles
         self.reset()
 
     def reset(self):
-        self.x = WIDTH // 2
-        self.y = 50  # start near top
+        self.x = WIN_WIDTH // 2
+        self.y = WIN_HEIGHT // 2  # start in center
         self.vx = 0
         self.vy = INITIAL_BALL_SPEED
         self.speed_multiplier = 1.0
 
-    def update(self, dt):
+    def update(self, dt, screen):
         """Physics update."""
         # Gravity
         self.vy += GRAVITY * self.speed_multiplier
@@ -90,26 +101,22 @@ class Ball:
         self.y += self.vy * dt
 
         # Check collision with platform
-        if self.vy > 0:  # only when falling
+        if self.vy > 0 or self.vy < 0:
             hitbox = pygame.Rect(self.x - BALL_RADIUS, self.y - BALL_RADIUS, 2 * BALL_RADIUS, 2 * BALL_RADIUS)
-            if self.platform.rect.colliderect(hitbox):
+            if self.paddles.top.colliderect(hitbox) or self.paddles.bot.colliderect(hitbox):
                 # Bounce: invert velocity and add a small bounce boost
                 self.vy = -self.vy * 1.1
                 self.speed_multiplier += SPEED_UP_RATE  # speed up a bit
                 # Horizontal tweak based on platform speed and position on platform
                 english_factor = -2.5
-                self.vx += (self.platform.speed * english_factor) + (self.x - self.platform.rect.centerx)
+                self.vx += (self.paddles.vel_x * english_factor) + (self.x - self.paddles.pos_x)
 
         # Floor collision (lose condition)
-        if self.y - BALL_RADIUS > HEIGHT:
+        if self.y - BALL_RADIUS > WIN_HEIGHT or self.y - BALL_RADIUS < 0:
             return False  # ball fell
 
-        # Ceiling bounce
-        if self.y - BALL_RADIUS < 0:
-            self.vy = -self.vy
-
         # Left/right wall bounce
-        if self.x - BALL_RADIUS < 0 or self.x + BALL_RADIUS > WIDTH:
+        if self.x - BALL_RADIUS < 0 or self.x + BALL_RADIUS > WIN_WIDTH:
             self.vx = -self.vx
 
         return True  # ball still alive
@@ -121,7 +128,7 @@ class Ball:
 # INITIALISE PYGAME
 # -------------------------------------------------------------
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("BounceGame")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 36)
@@ -130,8 +137,8 @@ font = pygame.font.SysFont(None, 36)
 # MAIN GAME LOOP
 # -------------------------------------------------------------
 def main():
-    platform = Platform()
-    ball = Ball(platform)
+    paddles = QuadPaddle()
+    ball = Ball(paddles)
     start_ticks = pygame.time.get_ticks()  # ms
     running = True
 
@@ -146,8 +153,8 @@ def main():
         keys = pygame.key.get_pressed()
 
         # ---------- UPDATE ----------
-        platform.update(keys)
-        alive = ball.update(dt)
+        paddles.update(keys)
+        alive = ball.update(dt, screen)
 
         if not alive:
             # Game over: show final score, wait a bit, then quit
@@ -159,7 +166,7 @@ def main():
 
         # ---------- DRAW ----------
         screen.fill(BG_COLOR)
-        platform.draw(screen)
+        paddles.draw(screen)
         ball.draw(screen)
 
         # Show score
