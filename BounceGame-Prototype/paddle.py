@@ -32,7 +32,7 @@ class Paddle:
         # direction: -1 left/up, +1 right/down, 0 stopped.
         if self.vertical:
             self.hitbox.y += direction * PADDLE_SPEED
-            self.hitbox.y = max(WIN_MARGIN, min(self.hitbox.y, PLAYFIELD_HEIGHT - self.hitbox.height))
+            self.hitbox.y = max(WIN_MARGIN, min(self.hitbox.y, (PLAYFIELD_HEIGHT - WIN_MARGIN) - self.hitbox.height))
         else:
             self.hitbox.x += direction * PADDLE_SPEED
             self.hitbox.x = max(WIN_MARGIN, min(self.hitbox.x, PLAYFIELD_WIDTH - self.hitbox.width))
