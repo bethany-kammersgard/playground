@@ -12,8 +12,8 @@ class Playfield:
     def __init__(self):
         # Create the four paddles (our passive player controlled objects)
         self.x_paddles = [
-            Paddle((WIN_MARGIN + PLAYFIELD_WIDTH-PADDLE_LENGTH)//2, PLAYFIELD_HEIGHT*0.9, PADDLE_LENGTH, PADDLE_GIRTH, RED_COLOR),             # top
-            Paddle((WIN_MARGIN + PLAYFIELD_WIDTH-PADDLE_LENGTH)//2, PLAYFIELD_HEIGHT*0.1, PADDLE_LENGTH, PADDLE_GIRTH, GRN_COLOR),             # bottom
+            Paddle((WIN_MARGIN + PLAYFIELD_WIDTH-PADDLE_LENGTH)//2, WIN_MARGIN, PADDLE_LENGTH, PADDLE_GIRTH, RED_COLOR),                       # top
+            Paddle((WIN_MARGIN + PLAYFIELD_WIDTH-PADDLE_LENGTH)//2, PLAYFIELD_HEIGHT - PADDLE_GIRTH, PADDLE_LENGTH, PADDLE_GIRTH, GRN_COLOR),  # bottom
         ]
         self.y_paddles = [
             Paddle(WIN_MARGIN, (PLAYFIELD_HEIGHT-PADDLE_LENGTH)//2, PADDLE_LENGTH, PADDLE_GIRTH, YEL_COLOR, vertical=True),                    # left

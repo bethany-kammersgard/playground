@@ -39,12 +39,12 @@ class Ball:
         # ----------------------------------------------------------------
         for paddle in self.paddles:
             if paddle.hitbox.colliderect(hitbox):
-                # Bounce off paddle: invert velocity and add a small bounce boost plus tweak based on position ball hits on paddle
+                # Bounce off paddle: invert velocity plus tweak based on position ball hits on paddle
                 if paddle.vertical:
-                    self.vx = -self.vx * 1.2
+                    self.vx = -self.vx
                     self.vy += self.y - paddle.hitbox.y
                 else:
-                    self.vy = -self.vy * 1.2
+                    self.vy = -self.vy
                     self.vx += self.x - paddle.hitbox.x
                 self.speed_multiplier += SPEED_UP_RATE  # speed up a bit
                 break  # Limit only one collision per frame
